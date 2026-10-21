@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Selamat Ulang Tahun, Tara!</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ebe6ff; --ink:#2a1b5e; --soft:#5b4d92; --coral:#ff6b5b; --butter:#ffd86b; --mint:#7ed9c0; --card:#fff;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#1d1442; --ink:#f4efff; --soft:#b9aee8; --card:#2a1f5c;}
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;line-height:1.6;overflow-x:hidden}
+main{max-width:640px;margin:0 auto;padding:40px 22px 56px;text-align:center}
+h1,.num{font-family:"Bricolage Grotesque",Georgia,sans-serif}
+.date{margin:0;color:var(--soft);font-weight:600}
+h1{font-size:clamp(1.6rem,6vw,2.2rem);margin:6px 0 0;font-weight:800;letter-spacing:-.01em}
+.stage{position:relative;display:inline-block;margin:70px 0 10px}
+.num{font-size:clamp(9rem,42vw,15rem);font-weight:800;line-height:.9;letter-spacing:-.04em;color:var(--coral);text-shadow:6px 6px 0 var(--butter);user-select:none}
+.num span:last-child{color:var(--ink);text-shadow:6px 6px 0 var(--mint)}
+.flame{position:absolute;left:7%;top:-62px;width:46px;height:70px;border:0;background:none;cursor:pointer;padding:0}
+.flame i{position:absolute;left:50%;bottom:6px;width:26px;height:44px;margin-left:-13px;border-radius:50% 50% 50% 50%/65% 65% 35% 35%;background:radial-gradient(circle at 50% 70%,#fff6c9 0 25%,var(--butter) 26% 60%,var(--coral) 61%);transform-origin:50% 100%;animation:flick .5s infinite alternate ease-in-out}
+.flame:focus-visible{outline:3px solid var(--ink);outline-offset:4px;border-radius:12px}
+.out i{animation:none;opacity:0;transform:scale(.2);transition:all .4s}
+@keyframes flick{from{transform:rotate(-4deg) scaleY(1)}to{transform:rotate(4deg) scaleY(1.12)}}
+.hint{margin:0;color:var(--soft);font-size:.95rem;min-height:1.6em}
+.wish{max-height:0;opacity:0;overflow:hidden;transition:max-height .9s ease,opacity .9s ease}
+.wish.show{max-height:1400px;opacity:1}
+.card{background:var(--card);border-radius:24px;padding:28px 24px;margin-top:28px;text-align:left;box-shadow:0 10px 0 -2px var(--butter)}
+.card p{margin:0 0 14px}
+.card p:last-child{margin:0}
+.card strong{font-family:"Bricolage Grotesque",sans-serif;font-size:1.25rem}
+.sign{text-align:right;color:var(--soft)}
+canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.flame i{animation:none}.wish{transition:none}}
+</style>
+</head>
+<body>
+<canvas id="c" aria-hidden="true"></canvas>
+<main>
+  <p class="date">Rabu, 21 Oktober 2026</p>
+  <h1>Selamat ulang tahun, Tara!</h1>
+
+  <div class="stage">
+    <button class="flame" id="flame" aria-label="Tiup lilin"><i></i></button>
+    <div class="num" aria-label="18 tahun"><span>1</span><span>8</span></div>
+  </div>
+  <p class="hint" id="hint">Ketuk api di atas angka 1 untuk meniup lilinnya.</p>
+
+  <section class="wish" id="wish" aria-live="polite">
+    <div class="card">
+      <p><strong>Hai Tara, kamu sudah 18 tahun!</strong></p>
+      <p>Hari ini kamu resmi melangkah ke babak baru. Semoga umur 18 membawa banyak hal baik: kesehatan, tawa yang gampang pecah, dan teman-teman yang selalu ada.</p>
+      <p>Semoga semua mimpi yang kamu simpan pelan-pelan jadi kenyataan, dan semoga kamu selalu berani mencoba hal baru, bahkan saat rasanya menakutkan.</p>
+      <p>Terima kasih sudah jadi dirimu sendiri. Nikmati harimu, makan kuenya yang banyak, dan jangan lupa bahagia.</p>
+      <p class="sign">Salam hangat, temanmu</p>
+    </div>
+    <p class="hint" style="margin-top:22px"><button id="again" style="font:inherit;font-weight:600;color:var(--ink);background:var(--butter);border:0;border-radius:99px;padding:10px 22px;cursor:pointer">Hujan konfeti lagi</button></p>
+  </section>
+</main>
+
+<script>
+(function(){
+  var cv=document.getElementById('c'),ctx=cv.getContext('2d'),P=[],run=false;
+  function size(){cv.width=innerWidth;cv.height=innerHeight}
+  size();addEventListener('resize',size);
+  var cols=['#ff6b5b','#ffd86b','#7ed9c0','#8b7bff','#ff9ec7'];
+  function burst(n){
+    for(var i=0;i<n;i++)P.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.4,
+      vx:(Math.random()-.5)*3,vy:2+Math.random()*4,w:6+Math.random()*7,h:10+Math.random()*8,
+      r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[i%cols.length]});
+    if(!run){run=true;requestAnimationFrame(tick)}
+  }
+  function tick(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    P=P.filter(function(p){return p.y<cv.height+30});
+    P.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+    });
+    if(P.length)requestAnimationFrame(tick);else run=false;
+  }
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var flame=document.getElementById('flame');
+  flame.addEventListener('click',function(){
+    if(flame.classList.contains('out'))return;
+    flame.classList.add('out');
+    document.getElementById('hint').textContent='Make a wish dulu, Tara!';
+    document.getElementById('wish').classList.add('show');
+    if(!reduce)burst(160);
+    setTimeout(function(){document.getElementById('wish').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'})},500);
+  });
+  document.getElementById('again').addEventListener('click',function(){if(!reduce)burst(160)});
+})();
+</script>
+</body>
+</html>
